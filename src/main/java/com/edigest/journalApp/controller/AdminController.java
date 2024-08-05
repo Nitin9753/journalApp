@@ -1,5 +1,6 @@
 package com.edigest.journalApp.controller;
 
+import com.edigest.journalApp.cache.AppCache;
 import com.edigest.journalApp.entity.User;
 import com.edigest.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AppCache appCache;
     @GetMapping("/all-users")
     public ResponseEntity<?> getAll(){
         List<User> all=userService.getAll();
@@ -26,5 +29,17 @@ public class AdminController {
     @PostMapping("/create-admin-user")
     public void createUser(@RequestBody User user){
         userService.saveAdmin(user);
+    }
+
+    @GetMapping("/clear-app-cache")
+    public ResponseEntity<?> clearAppCache(){
+        try{
+            appCache.init();
+            return new ResponseEntity<>("App cache is cleared", HttpStatus.OK);
+        }catch (Exception e){
+            System.out.print("error in clear-app-cache of the admin controller file"+e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }

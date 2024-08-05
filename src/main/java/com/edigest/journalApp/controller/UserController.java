@@ -1,8 +1,10 @@
 package com.edigest.journalApp.controller;
 
+import com.edigest.journalApp.api.response.WeatherResponse;
 import com.edigest.journalApp.entity.User;
 import com.edigest.journalApp.repository.UserRepository;
 import com.edigest.journalApp.service.UserService;
+import com.edigest.journalApp.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,8 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private WeatherService weatherService;
     @PostMapping
     public void createUser(@RequestBody User user){
         System.out.print("the create User function called");
@@ -46,5 +50,17 @@ public class UserController {
         String username=authentication.getName();
         userRepository.deleteByUsername(username);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> greeting(){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        String username=authentication.getName();
+        WeatherResponse weatherResponse=weatherService.getWeather("london");
+        String greetings="";
+        if(weatherResponse!=null){
+            greetings=", weather feels like "+weatherResponse.getMain().getTemp();
+        }
+        return new ResponseEntity<>("Hi "+ username+greetings, HttpStatus.OK);
     }
 }
